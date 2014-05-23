@@ -60,7 +60,7 @@ public abstract class ExtendableListView extends AbsListView {
 
     private static final String TAG = "ExtendableListView";
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
 
     private static final int TOUCH_MODE_IDLE = 0;
     private static final int TOUCH_MODE_SCROLLING = 1;
@@ -917,6 +917,10 @@ public abstract class ExtendableListView extends AbsListView {
                     top >= getListPaddingTop() &&
                     mFirstPosition + getChildCount() < mItemCount &&
                     bottom <= getHeight() - getListPaddingBottom();
+	        Log.d(TAG, "bottom: " + bottom + ", mLastY: " + mLastY);
+	        if(mLastY < bottom){
+		        mLastY = bottom;
+	        }
 
             if (!atEdge) {
                 mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
@@ -1092,7 +1096,7 @@ public abstract class ExtendableListView extends AbsListView {
 
     // move our views by deltaY - what's the incrementalDeltaY?
     private boolean moveTheChildren(int deltaY, int incrementalDeltaY) {
-        if (DBG) Log.d(TAG, "moveTheChildren deltaY: " + deltaY + "incrementalDeltaY: " + incrementalDeltaY);
+        if (DBG) Log.d(TAG, "moveTheChildren deltaY: " + deltaY + ", incrementalDeltaY: " + incrementalDeltaY);
         // there's nothing to move!
         if (!hasChildren()) return true;
 
@@ -1136,11 +1140,13 @@ public abstract class ExtendableListView extends AbsListView {
 
         if (DBG) {
             Log.d(TAG, "moveTheChildren " +
+                    " firstPosition " + firstPosition +
                     " firstTop " + firstTop +
                     " maxTop " + maxTop +
                     " incrementalDeltaY " + incrementalDeltaY);
             Log.d(TAG, "moveTheChildren " +
-                    " lastBottom " + lastBottom +
+                       " firstPosition " + firstPosition +
+                       " lastBottom " + lastBottom +
                     " maxBottom " + maxBottom +
                     " incrementalDeltaY " + incrementalDeltaY);
         }
@@ -1863,6 +1869,41 @@ public abstract class ExtendableListView extends AbsListView {
         }
     }
 
+
+	/**
+	 * Smoothly scroll by distance pixels over duration milliseconds.
+	 * @param distance Distance to scroll in pixels.
+	 * @param duration Duration of the scroll animation in milliseconds.
+	 */
+	@Override
+	public void smoothScrollBy(int distance, int duration) {
+		Log.i(TAG, "smoothScrollBy: " + distance + ", duration: " + duration);
+		smoothScrollBy(distance, duration, false);
+	}
+
+	void smoothScrollBy(int distance, int duration, boolean linear) {
+		if (mFlingRunnable == null) {
+			mFlingRunnable = new FlingRunnable();
+		}
+
+		// No sense starting to scroll if we're not going anywhere
+		final int firstPos = mFirstPosition;
+		final int childCount = getChildCount();
+		final int lastPos = firstPos + childCount;
+		final int topLimit = getPaddingTop();
+		final int bottomLimit = getHeight() - getPaddingBottom();
+
+		if (distance == 0 || mItemCount == 0 || childCount == 0 ||
+		    (firstPos == 0 && getChildAt(0).getTop() == topLimit && distance < 0) ||
+		    (lastPos == mItemCount &&
+		     getChildAt(childCount - 1).getBottom() == bottomLimit && distance > 0)) {
+			mFlingRunnable.endFling();
+		} else {
+			reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
+			mFlingRunnable.startScroll(distance, duration);
+		}
+	}
+
     // //////////////////////////////////////////////////////////////////////////////////////////
     // FLING RUNNABLE
     //
@@ -1897,7 +1938,8 @@ public abstract class ExtendableListView extends AbsListView {
         }
 
         void startScroll(int distance, int duration) {
-            int initialY = distance < 0 ? Integer.MAX_VALUE : 0;
+	        Log.i(TAG, "startScroll: " + distance + ", duration: " + duration);
+	        int initialY = distance < 0 ? Integer.MAX_VALUE : 0;
             mLastFlingY = initialY;
             mScroller.startScroll(0, initialY, 0, distance, duration);
             mTouchMode = TOUCH_MODE_FLINGING;
@@ -1957,6 +1999,7 @@ public abstract class ExtendableListView extends AbsListView {
                         postOnAnimate(this);
                     }
                     else {
+	                    Log.v(TAG, "atEnd!");
                         endFling();
                     }
                     break;
