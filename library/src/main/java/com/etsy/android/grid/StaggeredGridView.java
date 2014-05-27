@@ -41,7 +41,7 @@ import static java.lang.Integer.MIN_VALUE;
 public class StaggeredGridView extends ExtendableListView {
 
     private static final String TAG = "StaggeredGridView";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final int DEFAULT_COLUMNS_PORTRAIT = 2;
     private static final int DEFAULT_COLUMNS_LANDSCAPE = 3;
@@ -265,7 +265,7 @@ public class StaggeredGridView extends ExtendableListView {
             initColumnTops();
         }
         if (mColumnBottoms == null || mColumnBottoms.length != mColumnCount) {
-	        Log.w(TAG, "resetColumnBottoms");
+	        if(DBG) Log.w(TAG, "resetColumnBottoms");
             mColumnBottoms = new int[mColumnCount];
             initColumnBottoms();
         }
@@ -318,7 +318,7 @@ public class StaggeredGridView extends ExtendableListView {
                 mColumnTops = new int[mColumnCount];
             }
             if (mColumnBottoms == null) {
-	            Log.w(TAG, "reset mColumnBottoms");
+	            if(DBG) Log.w(TAG, "reset mColumnBottoms");
                 mColumnBottoms = new int[mColumnCount];
             }
             initColumnTopsAndBottoms();
@@ -366,7 +366,7 @@ public class StaggeredGridView extends ExtendableListView {
     private void preLayoutChildren() {
         // on a major re-layout reset for our next layout pass
         if (!mNeedSync) {
-	        Log.w(TAG, "preLayoutChildren, reset mColumnBotoms");
+	        if(DBG) Log.w(TAG, "preLayoutChildren, reset mColumnBotoms");
             Arrays.fill(mColumnBottoms, 0);
         }
         else {
@@ -375,7 +375,7 @@ public class StaggeredGridView extends ExtendableListView {
         // copy the tops into the bottom
         // since we're going to redo a layout pass that will draw down from
         // the top
-	    Log.v(TAG, "copy columnTops into columnBottoms");
+	    if(DBG) Log.v(TAG, "copy columnTops into columnBottoms");
         System.arraycopy(mColumnTops, 0, mColumnBottoms, 0, mColumnCount);
     }
 
@@ -429,8 +429,10 @@ public class StaggeredGridView extends ExtendableListView {
 
     private int getSafeBottom(int column) {
         int value = mColumnBottoms[column];
-	    Log.i(TAG, "getSafeBottom: " + column + " = " + value);
-	    Log.v(TAG, "columns: " + printColumns());
+	    if(DBG) {
+            Log.i(TAG, "getSafeBottom: " + column + " = " + value);
+	        Log.v(TAG, "columns: " + printColumns());
+        }
 	    if (inRange(value)) {
             return value;
         }
@@ -615,7 +617,7 @@ public class StaggeredGridView extends ExtendableListView {
 
     private void updateColumnBottomIfNeeded(int column, int childBottom) {
         if (inRange(mColumnBottoms[column]) && childBottom > mColumnBottoms[column]) {
-	        Log.d(TAG, "updateColumnBottomIfNeeded: column: " + column + ", bottom: " + childBottom);
+	        if(DBG) Log.d(TAG, "updateColumnBottomIfNeeded: column: " + column + ", bottom: " + childBottom);
             mColumnBottoms[column] = childBottom;
         }
     }
@@ -768,7 +770,7 @@ public class StaggeredGridView extends ExtendableListView {
                 mColumnTops[column] += offset;
             }
             if (inRange(mColumnBottoms[column])) {
-	            Log.d(TAG, "offsetColumnTopAndBottom, column: " + column + ", bottom: " + mColumnBottoms[column] + ", " +
+	            if(DBG) Log.d(TAG, "offsetColumnTopAndBottom, column: " + column + ", bottom: " + mColumnBottoms[column] + ", " +
 	                       "offset: " + offset);
                 mColumnBottoms[column] += offset;
             }
@@ -849,7 +851,7 @@ public class StaggeredGridView extends ExtendableListView {
         // go through our remaining views and sync the top and bottom stash.
 
         // Repair the top and bottom column boundaries from the views we still have
-	    Log.i(TAG, "onChildrenDetached");
+	    if(DBG) Log.i(TAG, "onChildrenDetached");
         Arrays.fill(mColumnTops, MAX_VALUE);
         Arrays.fill(mColumnBottoms, MIN_VALUE);
 
@@ -869,7 +871,7 @@ public class StaggeredGridView extends ExtendableListView {
                     final int childBottom = child.getBottom();
                     if (childBottom > mColumnBottoms[column]) {
                         mColumnBottoms[column] = childBottom + getChildBottomMargin();
-	                    Log.d(TAG, "onChildrenDetached, column: " + column + ", bottom: " + mColumnBottoms[column]);
+	                    if(DBG) Log.d(TAG, "onChildrenDetached, column: " + column + ", bottom: " + mColumnBottoms[column]);
                     }
                 }
                 else {
@@ -883,7 +885,7 @@ public class StaggeredGridView extends ExtendableListView {
                         }
                         if (childBottom > mColumnBottoms[col]) {
                             mColumnBottoms[col] = childBottom;
-	                        Log.d(TAG, "onChildrenDetached, column: " + col + ", bottom: " + childBottom);
+	                        if(DBG) Log.d(TAG, "onChildrenDetached, column: " + col + ", bottom: " + childBottom);
                         }
                     }
 
@@ -910,7 +912,7 @@ public class StaggeredGridView extends ExtendableListView {
 
     @Override
     protected void onSizeChanged(int w, int h) {
-	    Log.i(TAG, "onSizeChanged");
+	    if(DBG) Log.i(TAG, "onSizeChanged");
     	super.onSizeChanged(w, h);
     	boolean isLandscape = w > h;
         int newColumnCount = isLandscape ? mColumnCountLandscape : mColumnCountPortrait;
@@ -953,7 +955,7 @@ public class StaggeredGridView extends ExtendableListView {
      * layout the that position and then fillUp and fillDown appropriately.
      */
     private void onColumnSync() {
-	    Log.e(TAG, "onColumnSync");
+	    if(DBG) Log.e(TAG, "onColumnSync");
         // re-calc tops for new column count!
         int syncPosition = Math.min(mSyncPosition, getCount() - 1);
 
@@ -963,7 +965,7 @@ public class StaggeredGridView extends ExtendableListView {
             final GridItemRecord rec = mPositionData.get(pos);
             if (rec == null) break;
 
-            Log.d(TAG, "onColumnSync:" + pos + " ratio:" + rec.heightRatio);
+            if(DBG) Log.d(TAG, "onColumnSync:" + pos + " ratio:" + rec.heightRatio);
             positionHeightRatios.append(pos, rec.heightRatio);
         }
 
@@ -991,7 +993,7 @@ public class StaggeredGridView extends ExtendableListView {
                 for (int i = 0; i < mColumnCount; i++) {
                     mColumnTops[i] = top;
                     mColumnBottoms[i] = bottom;
-	                Log.v(TAG, "onColumnSync, column: " + i + ", bottom: " + bottom);
+	                if(DBG) Log.v(TAG, "onColumnSync, column: " + i + ", bottom: " + bottom);
                 }
             }
             else {
@@ -1003,7 +1005,7 @@ public class StaggeredGridView extends ExtendableListView {
 
                 mColumnTops[column] = top;
                 mColumnBottoms[column] = bottom;
-	            Log.v(TAG, "onColumnSync, column: " + column + ", bottom: " + bottom);
+	            if(DBG) Log.v(TAG, "onColumnSync, column: " + column + ", bottom: " + bottom);
 
                 rec.column = column;
             }
@@ -1031,7 +1033,7 @@ public class StaggeredGridView extends ExtendableListView {
         mDistanceToTop = -syncToBottom;
 
         // stash our bottoms in our tops - though these will be copied back to the bottoms
-	    Log.v(TAG, "mColumnBottoms = mColumnTops");
+	    if(DBG) Log.v(TAG, "mColumnBottoms = mColumnTops");
         System.arraycopy(mColumnBottoms, 0, mColumnTops, 0, mColumnCount);
     }
 
@@ -1114,7 +1116,7 @@ public class StaggeredGridView extends ExtendableListView {
     }
 
     private void initColumnBottoms() {
-	    Log.i(TAG, "initColumnBottoms");
+	    if(DBG) Log.i(TAG, "initColumnBottoms");
         Arrays.fill(mColumnBottoms, getPaddingTop() + mGridPaddingTop);
     }
 
@@ -1131,7 +1133,7 @@ public class StaggeredGridView extends ExtendableListView {
 
     private int getHighestPositionedBottom() {
         final int column = getHighestPositionedBottomColumn();
-	    Log.i(TAG, "getHighestPositionedBottom, max column: " + column);
+	    if(DBG) Log.i(TAG, "getHighestPositionedBottom, max column: " + column);
         return mColumnBottoms[column];
     }
 
@@ -1150,25 +1152,25 @@ public class StaggeredGridView extends ExtendableListView {
     }
 
     private int getLowestPositionedBottom() {
-	    Log.i(TAG, "getLowestPositionedBottom");
+	    if(DBG) Log.i(TAG, "getLowestPositionedBottom");
         final int column = getLowestPositionedBottomColumn();
         return mColumnBottoms[column];
     }
 
     private int getLowestPositionedBottomColumn() {
-	    Log.i(TAG, "getLowestPositionedBottomColumn");
+	    if(DBG) Log.i(TAG, "getLowestPositionedBottomColumn");
         int columnFound = 0;
         int lowestPositionedBottom = MIN_VALUE;
         // the lowest positioned bottom is the one with the highest value :D
         for (int i = 0; i < mColumnCount; i++) {
             int bottom = mColumnBottoms[i];
-	        Log.v(TAG, "i: " + i + ", bottom: " + bottom);
+	        if(DBG) Log.v(TAG, "i: " + i + ", bottom: " + bottom);
             if (inRange(bottom) && bottom > lowestPositionedBottom) {
                 lowestPositionedBottom = bottom;
                 columnFound = i;
             }
         }
-	    Log.v(TAG, "columnFound: " + columnFound);
+	    if(DBG) Log.v(TAG, "columnFound: " + columnFound);
         return columnFound;
     }
 

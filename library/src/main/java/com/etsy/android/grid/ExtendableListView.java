@@ -60,7 +60,7 @@ public abstract class ExtendableListView extends AbsListView {
 
     private static final String TAG = "ExtendableListView";
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final int TOUCH_MODE_IDLE = 0;
     private static final int TOUCH_MODE_SCROLLING = 1;
@@ -917,7 +917,7 @@ public abstract class ExtendableListView extends AbsListView {
                     top >= getListPaddingTop() &&
                     mFirstPosition + getChildCount() < mItemCount &&
                     bottom <= getHeight() - getListPaddingBottom();
-	        Log.d(TAG, "bottom: " + bottom + ", mLastY: " + mLastY);
+	        //Log.d(TAG, "bottom: " + bottom + ", mLastY: " + mLastY);
 	        if(mLastY < bottom){
 		        mLastY = bottom;
 	        }
@@ -1877,7 +1877,7 @@ public abstract class ExtendableListView extends AbsListView {
 	 */
 	@Override
 	public void smoothScrollBy(int distance, int duration) {
-		Log.i(TAG, "smoothScrollBy: " + distance + ", duration: " + duration);
+		if(DBG) Log.i(TAG, "smoothScrollBy: " + distance + ", duration: " + duration);
 		smoothScrollBy(distance, duration, false);
 	}
 
@@ -1938,7 +1938,7 @@ public abstract class ExtendableListView extends AbsListView {
         }
 
         void startScroll(int distance, int duration) {
-	        Log.i(TAG, "startScroll: " + distance + ", duration: " + duration);
+	        if(DBG) Log.i(TAG, "startScroll: " + distance + ", duration: " + duration);
 	        int initialY = distance < 0 ? Integer.MAX_VALUE : 0;
             mLastFlingY = initialY;
             mScroller.startScroll(0, initialY, 0, distance, duration);
@@ -1999,7 +1999,7 @@ public abstract class ExtendableListView extends AbsListView {
                         postOnAnimate(this);
                     }
                     else {
-	                    Log.v(TAG, "atEnd!");
+	                    if(DBG) Log.v(TAG, "atEnd!");
                         endFling();
                     }
                     break;
