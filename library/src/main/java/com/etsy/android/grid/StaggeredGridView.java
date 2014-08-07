@@ -17,6 +17,7 @@
 package com.etsy.android.grid;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -244,13 +245,16 @@ public class StaggeredGridView extends ExtendableListView {
     // //////////////////////////////////////////////////////////////////////////////////////////
     // MEASUREMENT
     //
+    private boolean isLandscape() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         if (mColumnCount <= 0) {
-            boolean isLandscape = getMeasuredWidth() > getMeasuredHeight();
+            boolean isLandscape = isLandscape();
             mColumnCount = isLandscape ? mColumnCountLandscape : mColumnCountPortrait;
         }
 
@@ -914,7 +918,7 @@ public class StaggeredGridView extends ExtendableListView {
     protected void onSizeChanged(int w, int h) {
 	    if(DBG) Log.i(TAG, "onSizeChanged");
     	super.onSizeChanged(w, h);
-    	boolean isLandscape = w > h;
+        boolean isLandscape = isLandscape();
         int newColumnCount = isLandscape ? mColumnCountLandscape : mColumnCountPortrait;
         if (mColumnCount != newColumnCount) {
             mColumnCount = newColumnCount;

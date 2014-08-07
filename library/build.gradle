@@ -20,4 +20,4 @@ android {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/sephiroth74/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: 'https://raw.githubusercontent.com/denizmveli/gradle-mvn-push/master/gradle-mvn-push.gradle'
